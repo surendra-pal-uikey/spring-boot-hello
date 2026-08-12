@@ -27,11 +27,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build Docker Image
-      run: docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-ci-demo:latest .
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Push image to Docker Hub
-      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-ci-demo:latest
+    - name: Build and push Docker Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-ci-demo:latest
 
     - name: SSH and Deploy to EC2
       uses: appleboy/ssh-action@v1
